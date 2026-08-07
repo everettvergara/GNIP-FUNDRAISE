@@ -1,0 +1,68 @@
+@import 'tailwindcss';
+@plugin '@tailwindcss/forms';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
+
+@theme {
+    --color-gn-primary: #685b55;
+    --color-gn-secondary: #7a726f;
+    --color-gn-accent: #8aa330;
+    --color-gn-orange: #f17025;
+    --color-gn-danger: #ff3131;
+    --color-gn-warning: #ffde59;
+    --color-gn-text: #685b55;
+    --color-gn-cta: #f17025;
+}
+
+[x-cloak] {
+    display: none !important;
+}
+
+@layer base {
+    input:not([type='checkbox']):not([type='radio']):not([type='file']):not([type='hidden']):not([type='submit']):not([type='button']),
+    select,
+    textarea {
+        @apply border border-gray-300 bg-white text-gn-text;
+    }
+}
+
+@layer components {
+    .gn-image-upload {
+        @apply relative flex min-h-32 cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 p-6 text-center transition-colors hover:border-gn-accent hover:bg-gn-accent/5;
+    }
+
+    .gn-image-upload--dragging {
+        @apply border-gn-accent bg-gn-accent/5 ring-2 ring-gn-accent/25;
+    }
+
+    .gn-image-upload:has(input:focus-visible) {
+        @apply border-gn-accent ring-2 ring-gn-accent/25;
+    }
+
+    .gn-image-upload-input {
+        @apply absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0;
+    }
+
+    .gn-image-upload-content {
+        @apply pointer-events-none flex flex-col items-center justify-center gap-2;
+    }
+
+    .gn-image-upload-selected {
+        @apply pointer-events-none mt-1 text-xs font-medium text-gn-accent;
+    }
+
+    .gn-image-upload-icon {
+        @apply h-10 w-10 text-gn-accent;
+    }
+
+    .gn-image-upload-text {
+        @apply text-sm text-gn-text;
+    }
+
+    .gn-image-upload-hint {
+        @apply text-xs text-gn-text/60;
+    }
+}

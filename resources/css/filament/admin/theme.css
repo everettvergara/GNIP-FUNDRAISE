@@ -1,0 +1,98 @@
+@import '../../../../vendor/filament/filament/resources/css/theme.css';
+
+@source '../../../../app/Filament/**/*';
+@source '../../../../resources/views/filament/**/*';
+
+@layer base {
+    :root {
+        --gn-primary: #685b55;
+        --gn-primary-dark: #675a54;
+        --gn-secondary: #7a726f;
+        --gn-accent: #8aa330;
+        --gn-accent-light: #94a240;
+        --gn-orange: #f17025;
+        --gn-danger: #ff3131;
+        --gn-warning: #ffde59;
+        --gn-background: #ffffff;
+        --gn-border: #c2c0bf;
+    }
+}
+
+@layer base {
+    .fi-body {
+        font-family: Calibri, Candara, Segoe, 'Segoe UI', Optima, Arial, sans-serif;
+        font-size: 13px;
+    }
+
+    .fi-ta-text,
+    .fi-ta-header-cell-label {
+        font-size: 12px;
+    }
+
+    .fi-sidebar {
+        --tw-text-opacity: 1;
+        color: var(--gn-primary);
+    }
+
+    .fi-sidebar-item-button.fi-active {
+        color: var(--gn-accent);
+    }
+
+    .fi-btn.fi-color-primary {
+        background-color: var(--gn-accent);
+    }
+
+    .fi-btn.fi-color-primary:hover {
+        background-color: var(--gn-accent-light);
+    }
+
+    .fi-btn.fi-color-danger {
+        background-color: var(--gn-orange);
+    }
+
+    .fi-btn.fi-color-danger:hover {
+        opacity: 0.9;
+    }
+
+    .fi-topbar {
+        background-color: var(--gn-background);
+        border-color: var(--gn-border);
+    }
+
+    .fi-main {
+        background-color: var(--gn-background);
+    }
+}
+
+@layer components {
+    .fi-fo-file-upload .filepond--root {
+        min-height: 8rem;
+        border: 2px dashed var(--gn-border);
+        box-shadow: none;
+        --tw-ring-shadow: 0 0 #0000;
+        --tw-ring-offset-shadow: 0 0 #0000;
+    }
+
+    .fi-fo-file-upload .filepond--root:hover,
+    .fi-fo-file-upload .filepond--root[data-hopper-state='drag-over'] {
+        border-color: var(--gn-accent);
+        background-color: color-mix(in srgb, var(--gn-accent) 6%, white);
+    }
+
+    .fi-fo-file-upload .filepond--drop-label {
+        min-height: 7rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .fi-fo-file-upload .filepond--drop-label,
+    .fi-fo-file-upload .filepond--drop-label label {
+        color: var(--gn-secondary) !important;
+    }
+
+    .fi-fo-file-upload.fi-fo-file-upload-avatar .filepond--root {
+        min-height: 8rem;
+        border-style: dashed;
+    }
+}
