@@ -4,7 +4,7 @@
 @endphp
 
 @if ($webpSrc)
-    <picture>
+    <picture @if ($class) class="{{ $class }}" @endif>
         <source srcset="{{ $webpSrc }}" type="image/webp">
         <img
             src="{{ asset($src) }}"
