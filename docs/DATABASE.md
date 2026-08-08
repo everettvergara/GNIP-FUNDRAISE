@@ -282,13 +282,17 @@ donations 1──* donor_sponsor_matches
 
 Run in this order (foreign key dependencies):
 
-1. `AdminSeeder`
-2. `CampaignCategorySeeder`
-3. `SectorSeeder`
-4. `CmsPageSeeder`
-5. `PartnerSeeder`
-6. `EmailTemplateSeeder`
-7. `CampaignSeeder` (requires user + categories)
-8. `DesignAssetSeeder` (optional)
+1. `RoleSeeder`
+2. `AdminSeeder`
+3. `CampaignDocumentTypeSeeder`
+4. `CampaignCategorySeeder`
+5. `SectorSeeder`
+6. `CmsPageSeeder`
+7. `PartnerSeeder`
+8. `EmailTemplateSeeder`
+9. `SiteSettingSeeder`
+10. `CampaignSeeder` (requires admin, categories, and source images in `public/images/campaigns/`)
 
 Command: `php artisan migrate --seed`
+
+Design images (hero banner, logos, partner logos in the footer) live in `public/images/` and are **not** seeded to the database. Campaign cover images are copied from `public/images/campaigns/` into `storage/app/public/campaigns/` during `CampaignSeeder`. Run `php artisan storage:link` after seeding so campaign covers are web-accessible.

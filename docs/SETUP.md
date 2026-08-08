@@ -117,7 +117,42 @@ php artisan migrate:fresh --seed
 php artisan route:list
 npm run build
 php artisan storage:link
+php scripts/verify-seed.php
 ```
+
+## Production bootstrap
+
+After deploying and configuring `.env` on the server:
+
+```bash
+composer install --no-dev --optimize-autoloader
+php artisan migrate --seed
+php artisan storage:link
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+npm ci && npm run build   # if frontend assets are not pre-built in deploy
+php scripts/verify-seed.php
+```
+
+### Post-seed security (required)
+
+The seeders create default accounts for demo and admin access. **Change these immediately after first login on live:**
+
+| Account | Email | Default password | Where to log in |
+|---------|-------|------------------|-----------------|
+| Admin | `admin@goodneighbors.ph` | `password` | `/admin/login` |
+| Demo fundraiser | `fundraiser@example.com` | `password` | `/login` |
+
+Optionally deactivate or change the demo fundraiser account if you do not want a public demo login.
+
+### What gets seeded
+
+- Roles, admin account, campaign categories, sectors, CMS pages, partners (names only), email templates, site settings
+- 5 demo campaigns with cover images copied into `storage/app/public/campaigns/`
+- 2 sample confirmed donations per demo campaign
+
+Static images for the hero banner, header/footer design, sector cards, and footer partner logos are already committed under `public/images/` and do not require seeding.
 
 ## Troubleshooting
 

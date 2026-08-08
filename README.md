@@ -65,10 +65,14 @@ php artisan serve --port=8222 --port=8222
 
 ## Default seeded accounts (after Phase 1)
 
-Set in `AdminSeeder` during bootstrap:
+Set during `php artisan migrate --seed`:
 
-- **Admin:** `admin@goodneighbors.ph` (password in seeder — change after first login)
-- **Sample campaign user:** created by `CampaignSeeder`
+| Account | Email | Default password | Login URL |
+|---------|-------|------------------|-----------|
+| Admin | `admin@goodneighbors.ph` | `password` | `/admin/login` |
+| Demo fundraiser | `fundraiser@example.com` | `password` | `/login` |
+
+**Change these passwords immediately after first login on live.** See [docs/SETUP.md](docs/SETUP.md#post-seed-security-required) for the full production bootstrap checklist.
 
 ## License
 
