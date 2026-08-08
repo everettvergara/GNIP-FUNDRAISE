@@ -79,19 +79,19 @@
                                 @foreach ($category['sectors'] as $sector)
                                     <a
                                         href="{{ route('campaigns.index', ['category' => $sector->slug]) }}"
-                                        class="flex gap-4 group hover:opacity-90 transition"
+                                        class="flex flex-col lg:flex-row gap-4 group hover:opacity-90 transition"
                                     >
                                         @if ($sector->image)
                                             <x-optimized-image
                                                 :src="ltrim($sector->image, '/')"
                                                 :alt="$sector->name"
-                                                class="w-[218px] max-w-[40%] aspect-square object-cover flex-shrink-0"
+                                                class="w-full lg:w-[218px] aspect-square object-cover flex-shrink-0"
                                                 :lazy="true"
                                             />
                                         @else
-                                            <div class="w-[218px] max-w-[40%] aspect-square bg-gn-accent/20 flex-shrink-0"></div>
+                                            <div class="w-full lg:w-[218px] aspect-square bg-gn-accent/20 flex-shrink-0"></div>
                                         @endif
-                                        <div class="min-w-0 pt-1">
+                                        <div class="min-w-0 lg:pt-1">
                                             <h4 class="text-base font-bold text-[#94a240] group-hover:underline">
                                                 {{ $sector->name }}
                                             </h4>

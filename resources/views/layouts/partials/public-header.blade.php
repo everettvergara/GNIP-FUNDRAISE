@@ -52,12 +52,6 @@
             </nav>
 
             <div class="flex md:hidden items-center gap-2">
-                @if ($fundraiseUrl)
-                    <a href="{{ $fundraiseUrl }}"
-                       class="inline-flex items-center justify-center px-5 py-2 bg-gn-orange text-white text-[13px] font-normal rounded-full hover:opacity-90 transition">
-                        I want to fundraise
-                    </a>
-                @endif
                 <button
                     type="button"
                     @click="open = !open"
@@ -91,6 +85,12 @@
             @else
                 <a href="{{ route('login') }}" class="block px-2 py-2 rounded hover:bg-gray-50">Login</a>
             @endauth
+            @if ($fundraiseUrl)
+                <a href="{{ $fundraiseUrl }}"
+                   class="block mx-2 mt-2 px-8 py-2.5 text-center bg-gn-orange text-white text-[15px] font-normal rounded-full hover:opacity-90 transition">
+                    I want to fundraise
+                </a>
+            @endif
         </nav>
     </div>
 </header>
