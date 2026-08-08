@@ -1,5 +1,6 @@
 @php
     $showDonateButton = $showDonateButton ?? true;
+    $showShareButton = $showShareButton ?? true;
 @endphp
 
 @if ($campaign->cover_image)
@@ -16,11 +17,22 @@
             @include('campaigns.partials.organizer', ['campaign' => $campaign, 'size' => 'lg', 'showRole' => true])
         </div>
     </div>
-    @if ($showDonateButton)
-        <a href="{{ route('donations.create', $campaign->slug) }}"
-           class="inline-flex items-center justify-center px-6 py-3 bg-gn-orange text-white font-semibold rounded-md hover:opacity-90 whitespace-nowrap">
-            Donate Now
-        </a>
+    @if ($showShareButton || $showDonateButton)
+        <div class="flex flex-col gap-3 shrink-0 w-full md:w-auto">
+            @if ($showShareButton)
+                <x-campaign-share-button
+                    :url="route('campaigns.show', $campaign->slug)"
+                    :title="$campaign->title"
+                    class="w-full md:w-auto"
+                />
+            @endif
+            @if ($showDonateButton)
+                <a href="{{ route('donations.create', $campaign->slug) }}"
+                   class="inline-flex items-center justify-center px-6 py-3 bg-gn-orange text-white font-semibold rounded-md hover:opacity-90 whitespace-nowrap w-full md:w-auto">
+                    Donate Now
+                </a>
+            @endif
+        </div>
     @endif
 </div>
 

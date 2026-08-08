@@ -8,6 +8,7 @@ use App\Models\CampaignCategory;
 use App\Models\Donation;
 use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Storage;
 
 class CampaignSeeder extends Seeder
@@ -158,12 +159,27 @@ class CampaignSeeder extends Seeder
                 ],
             );
         }
+
+        $this->ensureStorageLink();
+    }
+
+    private function ensureStorageLink(): void
+    {
+        try {
+            Artisan::call('storage:link');
+        } catch (\Throwable) {
+            // Symlink already exists or cannot be created in this environment.
+        }
     }
 
     private function seedCoverImage(string $filename): string
     {
         $sourcePath = public_path("images/campaigns/{$filename}");
         $destination = "campaigns/{$filename}";
+
+        if (! is_file($sourcePath)) {
+            throw new \RuntimeException("Campaign cover source image not found: {$sourcePath}");
+        }
 
         Storage::disk('public')->put(
             $destination,

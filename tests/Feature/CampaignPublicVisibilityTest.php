@@ -116,7 +116,9 @@ class CampaignPublicVisibilityTest extends TestCase
 
         $this->get(route('campaigns.show', $campaign->slug))
             ->assertOk()
-            ->assertSee('Active Public Campaign');
+            ->assertSee('Active Public Campaign')
+            ->assertSee('Share', false)
+            ->assertSee('Donate Now', false);
     }
 
     public function test_approved_campaign_appears_on_browse_and_show_pages(): void

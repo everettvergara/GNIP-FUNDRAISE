@@ -51,7 +51,7 @@
         @endif
         </div>
 
-        @include('campaigns.partials.show-content', ['campaign' => $record, 'showDonateButton' => false])
+        @include('campaigns.partials.show-content', ['campaign' => $record, 'showDonateButton' => false, 'showShareButton' => false])
 
         <div>
         <h2 class="text-xl font-bold mb-4">Submitted Documents</h2>
