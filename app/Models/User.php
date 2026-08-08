@@ -3,10 +3,12 @@
 namespace App\Models;
 
 use App\Notifications\VerifyEmailNotification;
+use App\Support\ModuleAccess;
 use Database\Factories\UserFactory;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -22,6 +24,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'last_name',
         'email',
         'password',
+        'role_id',
         'avatar',
         'about_me',
         'organization',
@@ -71,6 +74,16 @@ class User extends Authenticatable implements MustVerifyEmail
         });
     }
 
+    public function role(): BelongsTo
+    {
+        return $this->belongsTo(Role::class);
+    }
+
+    public function canAccessModule(string $module): bool
+    {
+        return ModuleAccess::can($this, $module);
+    }
+
     public function campaigns(): HasMany
     {
         return $this->hasMany(Campaign::class);
@@ -86,6 +99,21 @@ class User extends Authenticatable implements MustVerifyEmail
     public function isCampaignUser(): bool
     {
         return (bool) ($this->is_active ?? true);
+    }
+
+    /**
+     * Campaign portal accounts (users table) are never Filament admins,
+     * regardless of role slug (fundraiser, campaign_viewer, etc.).
+     */
+    public function isCampaignPortalAccount(): bool
+    {
+        $this->loadMissing('role');
+
+        if ($this->role) {
+            return $this->role->audience === Role::AUDIENCE_CAMPAIGN_USER;
+        }
+
+        return true;
     }
 
     public function hasPublicProfile(): bool

@@ -17,7 +17,7 @@ class FundraiserProfileController extends Controller
         $campaigns = Campaign::query()
             ->with('category')
             ->where('user_id', $user->id)
-            ->where('status', Campaign::STATUS_ACTIVE)
+            ->publiclyListed()
             ->latest()
             ->get();
 

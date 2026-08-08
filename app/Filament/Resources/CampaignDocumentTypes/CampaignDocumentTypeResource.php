@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\CampaignDocumentTypes;
 
+use App\Filament\Concerns\AuthorizesAdminModule;
 use App\Filament\Resources\CampaignDocumentTypes\Pages\CreateCampaignDocumentType;
 use App\Filament\Resources\CampaignDocumentTypes\Pages\EditCampaignDocumentType;
 use App\Filament\Resources\CampaignDocumentTypes\Pages\ListCampaignDocumentTypes;
@@ -16,6 +17,8 @@ use Filament\Tables\Table;
 
 class CampaignDocumentTypeResource extends Resource
 {
+    use AuthorizesAdminModule;
+
     protected static ?string $model = CampaignDocumentType::class;
 
     protected static ?string $navigationLabel = 'Document Types';
@@ -23,6 +26,11 @@ class CampaignDocumentTypeResource extends Resource
     protected static string|\UnitEnum|null $navigationGroup = 'Campaign Management';
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedDocumentText;
+
+    protected static function moduleKey(): string
+    {
+        return 'campaign_document_types';
+    }
 
     public static function form(Schema $schema): Schema
     {

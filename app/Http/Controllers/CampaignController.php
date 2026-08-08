@@ -6,9 +6,12 @@ use App\Http\Requests\StoreCampaignDocumentRequest;
 use App\Http\Requests\StoreCampaignRequest;
 use App\Http\Requests\UpdateCampaignRequest;
 use App\Models\Campaign;
-use App\Models\CampaignCategory;
 use App\Models\CampaignDocumentType;
+use App\Models\CampaignEvent;
 use App\Models\Donation;
+use App\Models\User;
+use App\Services\CampaignNotificationService;
+use App\Support\ReferenceDataCache;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -17,9 +20,13 @@ use Illuminate\View\View;
 
 class CampaignController extends Controller
 {
+    public function __construct(
+        private readonly CampaignNotificationService $notifications,
+    ) {}
+
     public function index(Request $request): View
     {
-        $categories = CampaignCategory::query()->orderBy('sort_order')->get();
+        $categories = ReferenceDataCache::campaignCategories();
 
         $selectedCategory = $request->string('category')->toString();
 
@@ -29,7 +36,7 @@ class CampaignController extends Controller
 
         $campaigns = Campaign::query()
             ->with(['user', 'category'])
-            ->where('status', Campaign::STATUS_ACTIVE)
+            ->publiclyListed()
             ->when($selectedCategory !== '', function ($query) use ($selectedCategory) {
                 $query->whereHas('category', fn ($q) => $q->where('slug', $selectedCategory));
             })
@@ -49,11 +56,8 @@ class CampaignController extends Controller
         $campaign = Campaign::query()
             ->with(['user', 'category', 'media', 'impactReports.photos'])
             ->where('slug', $slug)
+            ->publiclyListed()
             ->firstOrFail();
-
-        if ($campaign->status !== Campaign::STATUS_ACTIVE && (! auth()->check() || auth()->id() !== $campaign->user_id)) {
-            abort(404);
-        }
 
         $isOwner = auth()->check() && auth()->id() === $campaign->user_id;
 
@@ -72,8 +76,10 @@ class CampaignController extends Controller
 
     public function create(): View
     {
+        $this->authorize('create', Campaign::class);
+
         return view('campaigns.create', [
-            'categories' => CampaignCategory::query()->orderBy('sort_order')->get(),
+            'categories' => ReferenceDataCache::campaignCategories(),
         ]);
     }
 
@@ -82,7 +88,7 @@ class CampaignController extends Controller
         $slug = $this->uniqueSlug($request->validated('title'));
 
         $campaign = Campaign::query()->create([
-            ...$request->safe()->except(['cover_image', 'gallery_images']),
+            ...$request->safe()->except(['cover_image', 'gallery_images', 'status']),
             'user_id' => $request->user()->id,
             'slug' => $slug,
             'status' => Campaign::STATUS_DRAFT,
@@ -105,21 +111,24 @@ class CampaignController extends Controller
     public function edit(string $slug): View
     {
         $campaign = Campaign::query()
-            ->with(['media', 'documents.documentType'])
+            ->with(['media', 'documents.documentType', 'events.user', 'events.admin'])
             ->where('slug', $slug)
             ->firstOrFail();
 
         $this->authorize('view', $campaign);
 
-        $documentTypes = CampaignDocumentType::activeOrdered()->get();
-        $missingRequiredDocuments = $campaign->missingRequiredDocumentTypes();
+        $documentTypes = ReferenceDataCache::activeDocumentTypes();
+        $missingRequiredDocuments = $campaign->missingRequiredDocumentTypes($documentTypes);
 
         return view('campaigns.edit', [
             'campaign' => $campaign,
-            'categories' => CampaignCategory::query()->orderBy('sort_order')->get(),
+            'categories' => ReferenceDataCache::campaignCategories(),
             'documentTypes' => $documentTypes,
             'missingRequiredDocuments' => $missingRequiredDocuments,
             'canEdit' => $campaign->canBeEditedByOwner(),
+            'isReadOnly' => $campaign->canWithdrawSubmission(),
+            'canSubmitForApproval' => $campaign->canSubmitForApproval($documentTypes),
+            'canBeDeleted' => ! $campaign->donations()->exists(),
         ]);
     }
 
@@ -129,7 +138,7 @@ class CampaignController extends Controller
 
         $this->authorize('update', $campaign);
 
-        $data = $request->safe()->except(['cover_image', 'gallery_images', 'remove_gallery']);
+        $data = $request->safe()->except(['cover_image', 'gallery_images', 'remove_gallery', 'status', 'submit_for_approval']);
 
         if ($request->hasFile('cover_image')) {
             $data['cover_image'] = $request->file('cover_image')->store('campaigns', 'public');
@@ -142,6 +151,26 @@ class CampaignController extends Controller
         $campaign->update($data);
 
         $this->syncGallery($campaign, $request);
+
+        if ($request->boolean('submit_for_approval')) {
+            $campaign->refresh();
+
+            if (! $campaign->canSubmitForApproval()) {
+                return redirect()
+                    ->route('campaigns.edit', $campaign->slug)
+                    ->withErrors([
+                        'submit_for_approval' => 'Upload all required documents before submitting for approval.',
+                    ]);
+            }
+
+            $this->authorize('submitForApproval', $campaign);
+
+            $this->markCampaignSubmittedForApproval($campaign, $request->user(), $request->validated('submission_comment'));
+
+            return redirect()
+                ->route('campaigns.edit', $campaign->slug)
+                ->with('status', 'campaign-submitted-for-approval');
+        }
 
         return redirect()
             ->route('campaigns.edit', $campaign->slug)
@@ -209,17 +238,32 @@ class CampaignController extends Controller
 
         $this->authorize('submitForApproval', $campaign);
 
-        $campaign->update([
-            'status' => Campaign::STATUS_PENDING,
-            'submitted_at' => now(),
-            'rejection_reason' => null,
-            'reviewed_by' => null,
-            'reviewed_at' => null,
-        ]);
+        $this->markCampaignSubmittedForApproval($campaign, auth()->user());
 
         return redirect()
             ->route('campaigns.edit', $campaign->slug)
             ->with('status', 'campaign-submitted-for-approval');
+    }
+
+    public function withdrawSubmission(string $slug): RedirectResponse
+    {
+        $campaign = Campaign::query()->where('slug', $slug)->firstOrFail();
+
+        $this->authorize('withdrawSubmission', $campaign);
+
+        $campaign->update([
+            'status' => Campaign::STATUS_DRAFT,
+            'submitted_at' => null,
+        ]);
+
+        $campaign->events()->create([
+            'type' => CampaignEvent::TYPE_WITHDRAWN,
+            'user_id' => auth()->id(),
+        ]);
+
+        return redirect()
+            ->route('campaigns.edit', $campaign->slug)
+            ->with('status', 'campaign-submission-withdrawn');
     }
 
     public function share(string $slug): View
@@ -242,6 +286,25 @@ class CampaignController extends Controller
         return redirect()
             ->route('my-campaigns.index')
             ->with('status', 'campaign-deleted');
+    }
+
+    private function markCampaignSubmittedForApproval(Campaign $campaign, ?User $user = null, ?string $comment = null): void
+    {
+        $campaign->update([
+            'status' => Campaign::STATUS_PENDING,
+            'submitted_at' => now(),
+            'rejection_reason' => null,
+            'reviewed_by' => null,
+            'reviewed_at' => null,
+        ]);
+
+        $campaign->events()->create([
+            'type' => CampaignEvent::TYPE_SUBMITTED,
+            'comment' => $comment,
+            'user_id' => $user?->id ?? auth()->id(),
+        ]);
+
+        $this->notifications->sendSubmittedToAdmin($campaign);
     }
 
     private function uniqueSlug(string $title, ?int $ignoreId = null): string

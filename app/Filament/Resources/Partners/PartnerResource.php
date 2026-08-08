@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Partners;
 
+use App\Filament\Concerns\AuthorizesAdminModule;
 use App\Filament\Resources\Partners\Pages\CreatePartner;
 use App\Filament\Resources\Partners\Pages\EditPartner;
 use App\Filament\Resources\Partners\Pages\ListPartners;
@@ -16,11 +17,18 @@ use Filament\Tables\Table;
 
 class PartnerResource extends Resource
 {
+    use AuthorizesAdminModule;
+
     protected static ?string $model = Partner::class;
 
     protected static string|\UnitEnum|null $navigationGroup = 'Content Management';
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+
+    protected static function moduleKey(): string
+    {
+        return 'partners';
+    }
 
     public static function form(Schema $schema): Schema
     {

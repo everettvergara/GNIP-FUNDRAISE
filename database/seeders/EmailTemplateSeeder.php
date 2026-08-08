@@ -34,6 +34,16 @@ class EmailTemplateSeeder extends Seeder
                 'body' => "Hello {{ name }},\n\nYour campaign \"{{ campaign_title }}\" was not approved at this time.\n\nReason: {{ rejection_reason }}\n\nPlease review the feedback, update your campaign and documents, then submit again for approval:\n{{ edit_url }}\n\nThank you for fundraising with Good Neighbors Philippines.",
             ],
             [
+                'key' => 'campaign_revoked',
+                'subject' => 'Your campaign has been revoked',
+                'body' => "Hello {{ name }},\n\nYour campaign \"{{ campaign_title }}\" has been removed from public listing by our team.\n\nReason: {{ revocation_reason }}\n\nView your campaign: {{ edit_url }}\n\nIf you have questions, please contact Good Neighbors Philippines.",
+            ],
+            [
+                'key' => 'campaign_submitted_admin',
+                'subject' => 'New campaign submitted for approval',
+                'body' => "A campaign has been submitted for your review.\n\nCampaign: {{ campaign_title }}\nFundraiser: {{ fundraiser_name }} ({{ fundraiser_email }})\nSubmitted at: {{ submitted_at }}\n\nReview the campaign: {{ admin_review_url }}",
+            ],
+            [
                 'key' => 'donation_receipt',
                 'subject' => 'Thank you for your donation',
                 'body' => "Dear {{ donor_name }},\n\nThank you for giving us the opportunity to support this meaningful cause. We hope our small contribution helps make a positive impact in the lives of those who need it most.\n\nDonation amount: PHP {{ amount }}\nCampaign: {{ campaign_title }}\n\nWishing your organization continued success in all that you do.",

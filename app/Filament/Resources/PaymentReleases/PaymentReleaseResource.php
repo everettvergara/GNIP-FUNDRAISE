@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\PaymentReleases;
 
+use App\Filament\Concerns\AuthorizesAdminModule;
 use App\Filament\Resources\PaymentReleases\Pages\CreatePaymentRelease;
 use App\Filament\Resources\PaymentReleases\Pages\EditPaymentRelease;
 use App\Filament\Resources\PaymentReleases\Pages\ListPaymentReleases;
@@ -19,6 +20,8 @@ use Illuminate\Database\Eloquent\Builder;
 
 class PaymentReleaseResource extends Resource
 {
+    use AuthorizesAdminModule;
+
     protected static ?string $model = PaymentRelease::class;
 
     protected static ?string $navigationLabel = 'Payment Releases';
@@ -26,6 +29,11 @@ class PaymentReleaseResource extends Resource
     protected static string|\UnitEnum|null $navigationGroup = 'Donations and BMS';
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBanknotes;
+
+    protected static function moduleKey(): string
+    {
+        return 'payment_releases';
+    }
 
     public static function form(Schema $schema): Schema
     {

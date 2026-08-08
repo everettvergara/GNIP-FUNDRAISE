@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Admin;
+use App\Models\Role;
 use Illuminate\Database\Seeder;
 
 class AdminSeeder extends Seeder
@@ -17,7 +18,7 @@ class AdminSeeder extends Seeder
             [
                 'name' => 'GNIP Administrator',
                 'password' => 'password',
-                'role' => 'super_admin',
+                'role_id' => Role::superAdmin()->id,
                 'is_active' => true,
             ],
         );

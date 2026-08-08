@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\ActivityLogs;
 
+use App\Filament\Concerns\AuthorizesAdminModule;
 use App\Filament\Resources\ActivityLogs\Pages\CreateActivityLog;
 use App\Filament\Resources\ActivityLogs\Pages\EditActivityLog;
 use App\Filament\Resources\ActivityLogs\Pages\ListActivityLogs;
@@ -16,6 +17,8 @@ use Filament\Tables\Table;
 
 class ActivityLogResource extends Resource
 {
+    use AuthorizesAdminModule;
+
     protected static ?string $model = ActivityLog::class;
 
     protected static string|\UnitEnum|null $navigationGroup = 'Security and Administration';
@@ -23,6 +26,11 @@ class ActivityLogResource extends Resource
     protected static ?string $navigationLabel = 'Activity Logs';
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+
+    protected static function moduleKey(): string
+    {
+        return 'activity_logs';
+    }
 
     public static function form(Schema $schema): Schema
     {

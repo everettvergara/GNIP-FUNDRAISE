@@ -80,8 +80,7 @@ class DonationsTable
             ])
             ->filters([
                 SelectFilter::make('status')
-                    ->options(Donation::STATUSES)
-                    ->default(Donation::STATUS_PENDING),
+                    ->options(Donation::STATUSES),
                 SelectFilter::make('campaign_id')
                     ->relationship('campaign', 'title')
                     ->searchable()

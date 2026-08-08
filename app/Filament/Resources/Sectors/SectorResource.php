@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Sectors;
 
+use App\Filament\Concerns\AuthorizesAdminModule;
 use App\Filament\Resources\Sectors\Pages\CreateSector;
 use App\Filament\Resources\Sectors\Pages\EditSector;
 use App\Filament\Resources\Sectors\Pages\ListSectors;
@@ -16,11 +17,18 @@ use Filament\Tables\Table;
 
 class SectorResource extends Resource
 {
+    use AuthorizesAdminModule;
+
     protected static ?string $model = Sector::class;
 
     protected static string|\UnitEnum|null $navigationGroup = 'Content Management';
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+
+    protected static function moduleKey(): string
+    {
+        return 'sectors';
+    }
 
     public static function form(Schema $schema): Schema
     {

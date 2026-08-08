@@ -5,7 +5,7 @@
 @section('content')
     <h1 class="text-2xl font-bold mb-6">Create a Fundraise</h1>
 
-    <form method="POST" action="{{ route('campaigns.store') }}" enctype="multipart/form-data" class="max-w-2xl space-y-6 bg-white p-6 rounded-lg border border-gray-200">
+    <form method="POST" action="{{ route('campaigns.store') }}" enctype="multipart/form-data" data-turbo="false" class="max-w-2xl space-y-6 bg-white p-6 rounded-lg border border-gray-200">
         @csrf
 
         <div>

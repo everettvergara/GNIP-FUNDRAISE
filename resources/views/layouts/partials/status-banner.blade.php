@@ -1,8 +1,8 @@
 @if (session('status'))
     <div class="bg-gn-accent/10 border-b border-gn-accent/20">
         <div class="max-w-7xl mx-auto px-4 py-3 text-sm text-gn-text">
-            @if (session('status') === 'donation-pending')
-                Thank you! Your donation is being processed. You will be redirected to our payment partner soon.
+            @if (session('status') === 'donation-confirmed')
+                Thank you! Your donation has been recorded and added to the campaign goal.
             @elseif (session('status') === 'profile-updated')
                 Profile updated successfully.
             @elseif (session('status') === 'password-updated')

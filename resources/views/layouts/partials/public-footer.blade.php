@@ -19,6 +19,8 @@
                         src="{{ asset('images/partners/'.$logo['file']) }}"
                         alt="{{ $logo['alt'] }}"
                         class="max-h-14 md:max-h-16 w-auto max-w-full object-contain"
+                        loading="lazy"
+                        decoding="async"
                     >
                 </li>
             @endforeach
@@ -27,11 +29,12 @@
 </section>
 
 <section class="w-full overflow-hidden" aria-hidden="true">
-    <img
-        src="{{ asset('images/design/pre-footer-banner.png') }}"
+    <x-optimized-image
+        src="images/design/pre-footer-banner.png"
         alt=""
         class="block w-full h-auto min-h-[180px] md:min-h-[280px] max-h-[420px] object-cover object-center"
-    >
+        :lazy="true"
+    />
 </section>
 
 <footer class="bg-white border-t border-[#685b55]/10">

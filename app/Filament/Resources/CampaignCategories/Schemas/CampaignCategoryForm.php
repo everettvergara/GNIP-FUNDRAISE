@@ -4,7 +4,9 @@ namespace App\Filament\Resources\CampaignCategories\Schemas;
 
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Group;
 use Filament\Schemas\Schema;
+use Filament\Support\Enums\Width;
 
 class CampaignCategoryForm
 {
@@ -12,17 +14,20 @@ class CampaignCategoryForm
     {
         return $schema
             ->components([
-                TextInput::make('name')
-                    ->required(),
-                TextInput::make('slug')
-                    ->required(),
-                Textarea::make('description')
-                    ->default(null)
-                    ->columnSpanFull(),
-                TextInput::make('sort_order')
-                    ->required()
-                    ->numeric()
-                    ->default(0),
+                Group::make([
+                    TextInput::make('name')
+                        ->required(),
+                    TextInput::make('slug')
+                        ->required(),
+                    Textarea::make('description')
+                        ->default(null)
+                        ->columnSpanFull(),
+                    TextInput::make('sort_order')
+                        ->required()
+                        ->numeric()
+                        ->default(0),
+                ])
+                    ->maxWidth(Width::Large),
             ]);
     }
 }

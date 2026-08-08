@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Donations;
 
+use App\Filament\Concerns\AuthorizesAdminModule;
 use App\Filament\Resources\Donations\Pages\CreateDonation;
 use App\Filament\Resources\Donations\Pages\EditDonation;
 use App\Filament\Resources\Donations\Pages\ListDonations;
@@ -16,11 +17,18 @@ use Filament\Tables\Table;
 
 class DonationResource extends Resource
 {
+    use AuthorizesAdminModule;
+
     protected static ?string $model = Donation::class;
 
     protected static string|\UnitEnum|null $navigationGroup = 'Donations and BMS';
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+
+    protected static function moduleKey(): string
+    {
+        return 'donations';
+    }
 
     public static function form(Schema $schema): Schema
     {

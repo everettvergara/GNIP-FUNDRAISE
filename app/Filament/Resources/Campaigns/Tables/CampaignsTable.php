@@ -3,17 +3,12 @@
 namespace App\Filament\Resources\Campaigns\Tables;
 
 use App\Models\Campaign;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
-use Filament\Notifications\Notification;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
-use Illuminate\Support\Collection;
 
 class CampaignsTable
 {
@@ -44,6 +39,7 @@ class CampaignsTable
                         Campaign::STATUS_PENDING => 'warning',
                         Campaign::STATUS_ACTIVE => 'success',
                         Campaign::STATUS_REJECTED => 'danger',
+                        Campaign::STATUS_PAUSED => 'gray',
                         default => 'gray',
                     })
                     ->searchable(),
@@ -65,26 +61,6 @@ class CampaignsTable
             ])
             ->recordActions([
                 ViewAction::make(),
-                EditAction::make(),
-            ])
-            ->toolbarActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make()
-                        ->action(function (Collection $records): void {
-                            $blocked = $records->filter(fn (Campaign $campaign): bool => ! $campaign->canBeDeleted());
-
-                            if ($blocked->isNotEmpty()) {
-                                Notification::make()
-                                    ->title('Cannot delete campaigns that have donations')
-                                    ->danger()
-                                    ->send();
-
-                                return;
-                            }
-
-                            $records->each->delete();
-                        }),
-                ]),
             ]);
     }
 }

@@ -10,7 +10,8 @@ class CampaignImpactReportPolicy
 {
     public function create(User $user, Campaign $campaign): bool
     {
-        return $user->id === $campaign->user_id
+        return $user->canAccessModule('impact_reports')
+            && $user->id === $campaign->user_id
             && $campaign->status === Campaign::STATUS_ACTIVE;
     }
 
@@ -18,6 +19,7 @@ class CampaignImpactReportPolicy
     {
         $report->loadMissing('campaign');
 
-        return $user->id === $report->campaign->user_id;
+        return $user->canAccessModule('impact_reports')
+            && $user->id === $report->campaign->user_id;
     }
 }

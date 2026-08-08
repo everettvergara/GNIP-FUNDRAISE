@@ -55,7 +55,8 @@ class PaymentRelease extends Model
         $request = StorePaymentReleaseRequest::createFrom(request()->merge($payload));
         $request->setContainer(app());
         $request->setRedirector(app('redirect'));
-        $validated = $request->validate();
+        $request->validateResolved();
+        $validated = $request->validated();
 
         return DB::transaction(function () use ($validated, $request): self {
             $release = self::query()->create([

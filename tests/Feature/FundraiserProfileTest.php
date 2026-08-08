@@ -11,6 +11,19 @@ class FundraiserProfileTest extends TestCase
 {
     use RefreshDatabase;
 
+    private function approvedCampaignAttributes(): array
+    {
+        $admin = $this->createSuperAdmin([
+            'email' => 'admin@example.com',
+        ]);
+
+        return [
+            'submitted_at' => now()->subDay(),
+            'reviewed_at' => now(),
+            'reviewed_by' => $admin->id,
+        ];
+    }
+
     public function test_public_profile_shows_user_details_and_active_campaigns(): void
     {
         $user = User::factory()->create([
@@ -30,6 +43,7 @@ class FundraiserProfileTest extends TestCase
             'goal_amount' => 5000,
             'raised_amount' => 100,
             'status' => Campaign::STATUS_ACTIVE,
+            ...$this->approvedCampaignAttributes(),
         ]);
 
         Campaign::query()->create([
@@ -70,6 +84,7 @@ class FundraiserProfileTest extends TestCase
             'goal_amount' => 1000,
             'raised_amount' => 0,
             'status' => Campaign::STATUS_ACTIVE,
+            ...$this->approvedCampaignAttributes(),
         ]);
 
         $this->get(route('campaigns.show', $campaign->slug))
@@ -95,6 +110,7 @@ class FundraiserProfileTest extends TestCase
             'goal_amount' => 1000,
             'raised_amount' => 0,
             'status' => Campaign::STATUS_ACTIVE,
+            ...$this->approvedCampaignAttributes(),
         ]);
 
         $this->get(route('campaigns.show', $campaign->slug))

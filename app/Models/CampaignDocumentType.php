@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Support\ReferenceDataCache;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -28,7 +30,7 @@ class CampaignDocumentType extends Model
         return $this->hasMany(CampaignDocument::class, 'document_type_id');
     }
 
-    public static function activeOrdered(): \Illuminate\Database\Eloquent\Builder
+    public static function activeOrdered(): Builder
     {
         return static::query()
             ->where('is_active', true)
@@ -36,8 +38,14 @@ class CampaignDocumentType extends Model
             ->orderBy('name');
     }
 
-    public static function requiredActive(): \Illuminate\Database\Eloquent\Builder
+    public static function requiredActive(): Builder
     {
         return static::activeOrdered()->where('is_required', true);
+    }
+
+    protected static function booted(): void
+    {
+        static::saved(fn () => ReferenceDataCache::forgetDocumentTypes());
+        static::deleted(fn () => ReferenceDataCache::forgetDocumentTypes());
     }
 }

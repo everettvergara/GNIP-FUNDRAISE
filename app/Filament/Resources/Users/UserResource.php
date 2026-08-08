@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Users;
 
+use App\Filament\Concerns\AuthorizesAdminModule;
 use App\Filament\Resources\Users\Pages\CreateUser;
 use App\Filament\Resources\Users\Pages\EditUser;
 use App\Filament\Resources\Users\Pages\ListUsers;
@@ -16,6 +17,8 @@ use Filament\Tables\Table;
 
 class UserResource extends Resource
 {
+    use AuthorizesAdminModule;
+
     protected static ?string $model = User::class;
 
     protected static string|\UnitEnum|null $navigationGroup = 'User Management';
@@ -23,6 +26,11 @@ class UserResource extends Resource
     protected static ?string $navigationLabel = 'Campaign Users';
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+
+    protected static function moduleKey(): string
+    {
+        return 'campaign_users';
+    }
 
     public static function form(Schema $schema): Schema
     {

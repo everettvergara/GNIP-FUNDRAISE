@@ -31,7 +31,7 @@
                 <div class="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition">
                     <a href="{{ route('campaigns.show', $campaign->slug) }}" class="group block">
                         @if ($campaign->cover_image)
-                            <img src="{{ asset('storage/'.$campaign->cover_image) }}" alt="{{ $campaign->title }}" class="w-full h-48 object-cover">
+                            <img src="{{ asset('storage/'.$campaign->cover_image) }}" alt="{{ $campaign->title }}" class="w-full h-48 object-cover" loading="{{ $loop->index < 3 ? 'eager' : 'lazy' }}" decoding="async">
                         @else
                             <div class="w-full h-48 bg-gn-accent/20 flex items-center justify-center text-gn-accent font-semibold">Campaign</div>
                         @endif

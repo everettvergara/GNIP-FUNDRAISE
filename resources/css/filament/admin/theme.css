@@ -2,6 +2,18 @@
 
 @source '../../../../app/Filament/**/*';
 @source '../../../../resources/views/filament/**/*';
+@source '../../../../resources/views/campaigns/partials/**/*';
+
+@theme {
+    --color-gn-primary: #685b55;
+    --color-gn-secondary: #7a726f;
+    --color-gn-accent: #8aa330;
+    --color-gn-orange: #f17025;
+    --color-gn-danger: #ff3131;
+    --color-gn-warning: #ffde59;
+    --color-gn-text: #685b55;
+    --color-gn-cta: #f17025;
+}
 
 @layer base {
     :root {
@@ -58,9 +70,27 @@
         background-color: var(--gn-background);
         border-color: var(--gn-border);
     }
+}
+
+@layer components {
+    .fi-layout > .fi-main-sidebar.fi-sidebar.fi-sidebar-open {
+        position: sticky !important;
+        top: 4rem;
+        width: var(--sidebar-width) !important;
+        flex-shrink: 0;
+        align-self: flex-start;
+        height: calc(100dvh - 4rem);
+    }
+
+    .fi-main-ctn {
+        flex: 1 1 0%;
+        min-width: 0;
+    }
 
     .fi-main {
         background-color: var(--gn-background);
+        margin-inline: 0 !important;
+        max-width: 100% !important;
     }
 }
 

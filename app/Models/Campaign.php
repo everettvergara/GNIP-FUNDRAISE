@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Support\ReferenceDataCache;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -49,6 +51,7 @@ class Campaign extends Model
         'reviewed_by',
         'reviewed_at',
         'rejection_reason',
+        'revocation_reason',
     ];
 
     protected function casts(): array
@@ -109,6 +112,26 @@ class Campaign extends Model
         return $this->hasMany(CampaignImpactReport::class)->latest();
     }
 
+    public function events(): HasMany
+    {
+        return $this->hasMany(CampaignEvent::class)->latest();
+    }
+
+    public function scopePubliclyListed(Builder $query): Builder
+    {
+        return $query
+            ->where('status', self::STATUS_ACTIVE)
+            ->whereNotNull('reviewed_at')
+            ->whereNotNull('reviewed_by');
+    }
+
+    public function isPubliclyListed(): bool
+    {
+        return $this->status === self::STATUS_ACTIVE
+            && $this->reviewed_at !== null
+            && $this->reviewed_by !== null;
+    }
+
     public function canBeDeleted(): bool
     {
         return ! $this->donations()->exists();
@@ -119,39 +142,72 @@ class Campaign extends Model
         return in_array($this->status, [self::STATUS_DRAFT, self::STATUS_REJECTED], true);
     }
 
-    public function hasAllRequiredDocuments(): bool
+    public function hasAllRequiredDocuments(?Collection $activeDocumentTypes = null): bool
     {
-        return $this->missingRequiredDocumentTypes()->isEmpty();
+        return $this->missingRequiredDocumentTypes($activeDocumentTypes)->isEmpty();
     }
 
-    public function missingRequiredDocumentTypes(): Collection
+    /**
+     * @param  Collection<int, CampaignDocumentType>|null  $activeDocumentTypes
+     * @return Collection<int, CampaignDocumentType>
+     */
+    public function missingRequiredDocumentTypes(?Collection $activeDocumentTypes = null): Collection
     {
-        $requiredTypeIds = CampaignDocumentType::requiredActive()->pluck('id');
+        $requiredTypes = ($activeDocumentTypes ?? CampaignDocumentType::activeOrdered()->get())
+            ->where('is_required', true);
 
-        if ($requiredTypeIds->isEmpty()) {
-            return new Collection();
+        if ($requiredTypes->isEmpty()) {
+            return new Collection;
         }
 
-        $uploadedTypeIds = $this->documents()
-            ->whereIn('document_type_id', $requiredTypeIds)
-            ->pluck('document_type_id');
+        $requiredTypeIds = $requiredTypes->pluck('id');
+
+        if ($this->relationLoaded('documents')) {
+            $uploadedTypeIds = $this->documents
+                ->whereIn('document_type_id', $requiredTypeIds)
+                ->pluck('document_type_id');
+        } else {
+            $uploadedTypeIds = $this->documents()
+                ->whereIn('document_type_id', $requiredTypeIds)
+                ->pluck('document_type_id');
+        }
 
         $missingIds = $requiredTypeIds->diff($uploadedTypeIds);
 
-        return CampaignDocumentType::query()
+        return $requiredTypes
             ->whereIn('id', $missingIds)
-            ->orderBy('sort_order')
-            ->orderBy('name')
-            ->get();
+            ->values();
     }
 
-    public function canSubmitForApproval(): bool
+    /**
+     * @param  Collection<int, CampaignDocumentType>|null  $activeDocumentTypes
+     */
+    public function canSubmitForApproval(?Collection $activeDocumentTypes = null): bool
     {
-        return $this->canBeEditedByOwner() && $this->hasAllRequiredDocuments();
+        return $this->canBeEditedByOwner() && $this->hasAllRequiredDocuments($activeDocumentTypes);
+    }
+
+    public function canWithdrawSubmission(): bool
+    {
+        return $this->status === self::STATUS_PENDING;
+    }
+
+    public function isRevoked(): bool
+    {
+        return $this->status === self::STATUS_PAUSED && $this->revocation_reason !== null;
+    }
+
+    public function canBeRevokedByAdmin(): bool
+    {
+        return $this->status === self::STATUS_ACTIVE && $this->isPubliclyListed();
     }
 
     public function statusLabel(): string
     {
+        if ($this->isRevoked()) {
+            return 'Revoked';
+        }
+
         return match ($this->status) {
             self::STATUS_DRAFT => 'Draft',
             self::STATUS_PENDING => 'Pending review',
@@ -176,6 +232,14 @@ class Campaign extends Model
 
     protected static function booted(): void
     {
+        static::saved(function (Campaign $campaign): void {
+            if ($campaign->wasChanged('status')) {
+                ReferenceDataCache::forgetPendingCampaignsCount();
+            }
+        });
+
+        static::deleted(fn () => ReferenceDataCache::forgetPendingCampaignsCount());
+
         static::deleting(function (Campaign $campaign): void {
             if ($campaign->cover_image) {
                 Storage::disk('public')->delete($campaign->cover_image);

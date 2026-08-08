@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Admin;
 use App\Models\Campaign;
 use App\Models\CampaignCategory;
 use App\Models\Donation;
@@ -26,6 +27,9 @@ class CampaignSeeder extends Seeder
                 'is_active' => true,
             ],
         );
+
+        $reviewedAt = now()->subWeek();
+        $reviewedBy = Admin::query()->where('email', 'admin@goodneighbors.ph')->value('id');
 
         $categoryIds = CampaignCategory::query()
             ->whereIn('slug', [
@@ -111,6 +115,12 @@ class CampaignSeeder extends Seeder
         ];
 
         foreach ($campaigns as $campaignData) {
+            if ($campaignData['status'] === Campaign::STATUS_ACTIVE) {
+                $campaignData['submitted_at'] = $reviewedAt->copy()->subDay();
+                $campaignData['reviewed_at'] = $reviewedAt;
+                $campaignData['reviewed_by'] = $reviewedBy;
+            }
+
             $campaign = Campaign::query()->updateOrCreate(
                 ['slug' => $campaignData['slug']],
                 $campaignData,

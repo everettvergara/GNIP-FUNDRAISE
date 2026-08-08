@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Admins;
 
+use App\Filament\Concerns\AuthorizesAdminModule;
 use App\Filament\Resources\Admins\Pages\CreateAdmin;
 use App\Filament\Resources\Admins\Pages\EditAdmin;
 use App\Filament\Resources\Admins\Pages\ListAdmins;
@@ -16,11 +17,18 @@ use Filament\Tables\Table;
 
 class AdminResource extends Resource
 {
+    use AuthorizesAdminModule;
+
     protected static ?string $model = Admin::class;
 
     protected static string|\UnitEnum|null $navigationGroup = 'Security and Administration';
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+
+    protected static function moduleKey(): string
+    {
+        return 'admins';
+    }
 
     public static function form(Schema $schema): Schema
     {

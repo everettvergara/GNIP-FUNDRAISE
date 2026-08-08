@@ -1,4 +1,4 @@
-<section class="max-w-2xl mt-8 space-y-4">
+<section class="space-y-4">
     <div class="bg-white p-6 rounded-lg border border-gray-200">
         <h2 class="text-lg font-semibold">Delete Campaign</h2>
         <p class="mt-1 text-sm text-gn-text/70">

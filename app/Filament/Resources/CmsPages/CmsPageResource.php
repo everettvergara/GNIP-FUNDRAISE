@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\CmsPages;
 
+use App\Filament\Concerns\AuthorizesAdminModule;
 use App\Filament\Resources\CmsPages\Pages\CreateCmsPage;
 use App\Filament\Resources\CmsPages\Pages\EditCmsPage;
 use App\Filament\Resources\CmsPages\Pages\ListCmsPages;
@@ -16,11 +17,18 @@ use Filament\Tables\Table;
 
 class CmsPageResource extends Resource
 {
+    use AuthorizesAdminModule;
+
     protected static ?string $model = CmsPage::class;
 
     protected static string|\UnitEnum|null $navigationGroup = 'Content Management';
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+
+    protected static function moduleKey(): string
+    {
+        return 'cms_pages';
+    }
 
     public static function form(Schema $schema): Schema
     {

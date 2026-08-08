@@ -16,8 +16,10 @@ use Filament\Panel;
 use Filament\Schemas\Components\Actions;
 use Filament\Schemas\Components\EmbeddedSchema;
 use Filament\Schemas\Components\Form;
+use Filament\Schemas\Components\Group;
 use Filament\Schemas\Schema;
 use Filament\Support\Enums\Alignment;
+use Filament\Support\Enums\Width;
 use Filament\Support\Exceptions\Halt;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Model;
@@ -144,27 +146,30 @@ class ChangePassword extends Page
     {
         return $schema
             ->components([
-                TextInput::make('current_password')
-                    ->label('Current password')
-                    ->password()
-                    ->revealable(filament()->arePasswordsRevealable())
-                    ->required()
-                    ->currentPassword(guard: Filament::getAuthGuard())
-                    ->dehydrated(false),
-                TextInput::make('password')
-                    ->label('New password')
-                    ->password()
-                    ->revealable(filament()->arePasswordsRevealable())
-                    ->rule(Password::default())
-                    ->required()
-                    ->same('passwordConfirmation')
-                    ->validationAttribute('password'),
-                TextInput::make('passwordConfirmation')
-                    ->label('Confirm new password')
-                    ->password()
-                    ->revealable(filament()->arePasswordsRevealable())
-                    ->required()
-                    ->dehydrated(false),
+                Group::make([
+                    TextInput::make('current_password')
+                        ->label('Current password')
+                        ->password()
+                        ->revealable(filament()->arePasswordsRevealable())
+                        ->required()
+                        ->currentPassword(guard: Filament::getAuthGuard())
+                        ->dehydrated(false),
+                    TextInput::make('password')
+                        ->label('New password')
+                        ->password()
+                        ->revealable(filament()->arePasswordsRevealable())
+                        ->rule(Password::default())
+                        ->required()
+                        ->same('passwordConfirmation')
+                        ->validationAttribute('password'),
+                    TextInput::make('passwordConfirmation')
+                        ->label('Confirm new password')
+                        ->password()
+                        ->revealable(filament()->arePasswordsRevealable())
+                        ->required()
+                        ->dehydrated(false),
+                ])
+                    ->maxWidth(Width::Large),
             ]);
     }
 

@@ -4,7 +4,9 @@ namespace App\Filament\Resources\PaymentReleases\Schemas;
 
 use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\TextEntry;
+use Filament\Schemas\Components\Group;
 use Filament\Schemas\Schema;
+use Filament\Support\Enums\Width;
 
 class PaymentReleaseInfolist
 {
@@ -12,30 +14,33 @@ class PaymentReleaseInfolist
     {
         return $schema
             ->components([
-                TextEntry::make('control_number'),
-                TextEntry::make('campaign.title')
-                    ->label('Campaign'),
-                TextEntry::make('amount_released')
-                    ->label('Amount released')
-                    ->money('PHP'),
-                TextEntry::make('released_at')
-                    ->date(),
-                TextEntry::make('releasedBy.name')
-                    ->label('Released by'),
-                TextEntry::make('remarks')
-                    ->columnSpanFull(),
-                RepeatableEntry::make('donations')
-                    ->label('Tagged donations')
-                    ->schema([
-                        TextEntry::make('donor_name'),
-                        TextEntry::make('donor_email'),
-                        TextEntry::make('amount')
-                            ->money('PHP'),
-                        TextEntry::make('paid_at')
-                            ->dateTime(),
-                    ])
-                    ->columns(4)
-                    ->columnSpanFull(),
+                Group::make([
+                    TextEntry::make('control_number'),
+                    TextEntry::make('campaign.title')
+                        ->label('Campaign'),
+                    TextEntry::make('amount_released')
+                        ->label('Amount released')
+                        ->money('PHP'),
+                    TextEntry::make('released_at')
+                        ->date(),
+                    TextEntry::make('releasedBy.name')
+                        ->label('Released by'),
+                    TextEntry::make('remarks')
+                        ->columnSpanFull(),
+                    RepeatableEntry::make('donations')
+                        ->label('Tagged donations')
+                        ->schema([
+                            TextEntry::make('donor_name'),
+                            TextEntry::make('donor_email'),
+                            TextEntry::make('amount')
+                                ->money('PHP'),
+                            TextEntry::make('paid_at')
+                                ->dateTime(),
+                        ])
+                        ->columns(4)
+                        ->columnSpanFull(),
+                ])
+                    ->maxWidth(Width::Large),
             ]);
     }
 }

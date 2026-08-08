@@ -45,6 +45,23 @@ class CampaignRaisedAmountTest extends TestCase
         $this->assertSame('0.00', $campaign->fresh()->raised_amount);
     }
 
+    public function test_confirmed_donation_counts_toward_raised_amount_immediately_on_create(): void
+    {
+        $campaign = $this->createCampaign();
+
+        Donation::query()->create([
+            'campaign_id' => $campaign->id,
+            'donor_name' => 'Test Donor',
+            'donor_email' => 'donor@example.com',
+            'amount' => 250,
+            'type' => Donation::TYPE_ONE_TIME,
+            'status' => Donation::STATUS_CONFIRMED,
+            'paid_at' => now(),
+        ]);
+
+        $this->assertSame('250.00', $campaign->fresh()->raised_amount);
+    }
+
     public function test_three_month_recurring_counts_full_commitment(): void
     {
         $campaign = $this->createCampaign();

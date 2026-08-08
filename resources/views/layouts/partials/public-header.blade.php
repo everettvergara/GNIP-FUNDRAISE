@@ -28,26 +28,36 @@
                 >
             </div>
 
+            @php
+                $fundraiseUrl = auth()->check()
+                    ? (auth()->user()?->canAccessModule('campaigns_create') ? route('campaigns.create') : null)
+                    : route('register');
+            @endphp
+
             <nav class="hidden md:flex items-center gap-6 text-sm font-medium shrink-0">
                 <a href="{{ route('home') }}" class="hover:text-gn-accent {{ request()->routeIs('home') ? 'text-gn-accent' : '' }}">Home</a>
-                <a href="{{ route('campaigns.index') }}" class="hover:text-gn-accent {{ request()->routeIs('campaigns.*') && !request()->routeIs('campaigns.create', 'campaigns.edit', 'campaigns.share') ? 'text-gn-accent' : '' }}">Browse</a>
+                <a href="{{ route('campaigns.index') }}" class="hover:text-gn-accent {{ request()->routeIs('campaigns.index') ? 'text-gn-accent' : '' }}">Browse</a>
                 <a href="{{ route('faq') }}" class="hover:text-gn-accent {{ request()->routeIs('faq') ? 'text-gn-accent' : '' }}">FAQ</a>
                 @auth
                     <a href="{{ route('dashboard') }}" class="hover:text-gn-accent {{ request()->routeIs('dashboard', 'my-campaigns.*', 'donations.*', 'profile.*', 'account.*') ? 'text-gn-accent' : '' }}">Dashboard</a>
                 @else
                     <a href="{{ route('login') }}" class="hover:text-gn-accent">Login</a>
                 @endauth
-                <a href="{{ auth()->check() ? route('campaigns.create') : route('register') }}"
-                   class="inline-flex items-center justify-center px-8 py-2.5 bg-gn-orange text-white text-[15px] font-normal rounded-full hover:opacity-90 transition">
-                    I want to fundraise
-                </a>
+                @if ($fundraiseUrl)
+                    <a href="{{ $fundraiseUrl }}"
+                       class="inline-flex items-center justify-center px-8 py-2.5 bg-gn-orange text-white text-[15px] font-normal rounded-full hover:opacity-90 transition">
+                        I want to fundraise
+                    </a>
+                @endif
             </nav>
 
             <div class="flex md:hidden items-center gap-2">
-                <a href="{{ auth()->check() ? route('campaigns.create') : route('register') }}"
-                   class="inline-flex items-center justify-center px-5 py-2 bg-gn-orange text-white text-[13px] font-normal rounded-full hover:opacity-90 transition">
-                    I want to fundraise
-                </a>
+                @if ($fundraiseUrl)
+                    <a href="{{ $fundraiseUrl }}"
+                       class="inline-flex items-center justify-center px-5 py-2 bg-gn-orange text-white text-[13px] font-normal rounded-full hover:opacity-90 transition">
+                        I want to fundraise
+                    </a>
+                @endif
                 <button
                     type="button"
                     @click="open = !open"
@@ -74,7 +84,7 @@
             class="md:hidden border-t border-gray-100 py-3 space-y-1 text-sm font-medium"
         >
             <a href="{{ route('home') }}" class="block px-2 py-2 rounded hover:bg-gray-50 {{ request()->routeIs('home') ? 'text-gn-accent' : '' }}">Home</a>
-            <a href="{{ route('campaigns.index') }}" class="block px-2 py-2 rounded hover:bg-gray-50 {{ request()->routeIs('campaigns.*') && !request()->routeIs('campaigns.create', 'campaigns.edit', 'campaigns.share') ? 'text-gn-accent' : '' }}">Browse</a>
+            <a href="{{ route('campaigns.index') }}" class="block px-2 py-2 rounded hover:bg-gray-50 {{ request()->routeIs('campaigns.index') ? 'text-gn-accent' : '' }}">Browse</a>
             <a href="{{ route('faq') }}" class="block px-2 py-2 rounded hover:bg-gray-50 {{ request()->routeIs('faq') ? 'text-gn-accent' : '' }}">FAQ</a>
             @auth
                 <a href="{{ route('dashboard') }}" class="block px-2 py-2 rounded hover:bg-gray-50 {{ request()->routeIs('dashboard', 'my-campaigns.*', 'donations.*', 'profile.*', 'account.*') ? 'text-gn-accent' : '' }}">Dashboard</a>

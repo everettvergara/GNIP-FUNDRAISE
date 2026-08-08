@@ -3,9 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Announcement;
-use App\Models\CmsPage;
 use App\Models\Partner;
-use App\Models\Sector;
+use App\Support\ReferenceDataCache;
 use Illuminate\Http\Response;
 use Illuminate\View\View;
 
@@ -13,10 +12,11 @@ class CmsPageController extends Controller
 {
     public function show(string $slug): View|Response
     {
-        $page = CmsPage::query()
-            ->where('slug', $slug)
-            ->where('is_published', true)
-            ->firstOrFail();
+        $page = ReferenceDataCache::cmsPage($slug);
+
+        if ($page === null) {
+            abort(404);
+        }
 
         return view('cms.show', compact('page'));
     }
@@ -34,17 +34,17 @@ class CmsPageController extends Controller
     public function sectors(): View
     {
         return view('cms.sectors', [
-            'sectors' => Sector::query()
-                ->orderBy('sort_order')
-                ->get(),
+            'sectors' => ReferenceDataCache::sectorsOrdered(),
         ]);
     }
 
     public function sector(string $slug): View
     {
-        $sector = Sector::query()
-            ->where('slug', $slug)
-            ->firstOrFail();
+        $sector = ReferenceDataCache::sectorsOrdered()->firstWhere('slug', $slug);
+
+        if ($sector === null) {
+            abort(404);
+        }
 
         return view('cms.sector', compact('sector'));
     }

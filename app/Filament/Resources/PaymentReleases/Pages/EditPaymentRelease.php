@@ -28,7 +28,8 @@ class EditPaymentRelease extends EditRecord
         );
         $request->setContainer(app());
         $request->setRedirector(app('redirect'));
+        $request->validateResolved();
 
-        return $request->validate();
+        return $request->validated();
     }
 }

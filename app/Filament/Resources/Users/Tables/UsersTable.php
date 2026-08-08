@@ -22,6 +22,9 @@ class UsersTable
                 TextColumn::make('email')
                     ->label('Email address')
                     ->searchable(),
+                TextColumn::make('role.name')
+                    ->label('Role')
+                    ->searchable(),
                 TextColumn::make('organization')
                     ->searchable()
                     ->toggleable(),

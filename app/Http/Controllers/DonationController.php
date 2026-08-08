@@ -51,11 +51,12 @@ class DonationController extends Controller
             'show_name' => $request->boolean('show_name'),
             'amount' => $amount,
             'type' => $validated['type'],
-            'status' => 'pending',
+            'status' => Donation::STATUS_CONFIRMED,
+            'paid_at' => now(),
         ]);
 
         return redirect()
             ->route('campaigns.show', $campaign->slug)
-            ->with('status', 'donation-pending');
+            ->with('status', 'donation-confirmed');
     }
 }

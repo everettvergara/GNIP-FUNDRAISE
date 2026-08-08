@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\ReferenceDataCache;
 use Illuminate\Database\Eloquent\Model;
 
 class CmsPage extends Model
@@ -21,5 +22,15 @@ class CmsPage extends Model
             'body' => 'array',
             'is_published' => 'boolean',
         ];
+    }
+
+    protected static function booted(): void
+    {
+        $forget = function (CmsPage $page): void {
+            ReferenceDataCache::forgetCmsPage($page->slug);
+        };
+
+        static::saved($forget);
+        static::deleted($forget);
     }
 }

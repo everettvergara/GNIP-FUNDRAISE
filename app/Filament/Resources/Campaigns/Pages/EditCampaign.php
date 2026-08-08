@@ -14,6 +14,16 @@ class EditCampaign extends EditRecord
 
     protected static string $resource = CampaignResource::class;
 
+    public function mount(int|string $record): void
+    {
+        parent::mount($record);
+
+        $this->getRecord()->load([
+            'events.user',
+            'events.admin',
+        ]);
+    }
+
     protected function getHeaderActions(): array
     {
         return [

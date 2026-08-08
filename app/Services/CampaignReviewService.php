@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\ActivityLog;
 use App\Models\Admin;
 use App\Models\Campaign;
+use App\Models\CampaignEvent;
 use Illuminate\Support\Facades\Request;
 
 class CampaignReviewService
@@ -29,6 +30,11 @@ class CampaignReviewService
             'to_status' => Campaign::STATUS_ACTIVE,
         ]);
 
+        $campaign->events()->create([
+            'type' => CampaignEvent::TYPE_APPROVED,
+            'admin_id' => $admin->id,
+        ]);
+
         $this->notifications->sendPublished($campaign);
     }
 
@@ -49,7 +55,39 @@ class CampaignReviewService
             'rejection_reason' => $rejectionReason,
         ]);
 
+        $campaign->events()->create([
+            'type' => CampaignEvent::TYPE_REJECTED,
+            'comment' => $rejectionReason,
+            'admin_id' => $admin->id,
+        ]);
+
         $this->notifications->sendRejected($campaign);
+    }
+
+    public function revoke(Campaign $campaign, Admin $admin, string $revocationReason): void
+    {
+        $previousStatus = $campaign->status;
+
+        $campaign->update([
+            'status' => Campaign::STATUS_PAUSED,
+            'revocation_reason' => $revocationReason,
+            'reviewed_by' => $admin->id,
+            'reviewed_at' => now(),
+        ]);
+
+        $this->logActivity($admin, 'campaign.revoked', $campaign, [
+            'from_status' => $previousStatus,
+            'to_status' => Campaign::STATUS_PAUSED,
+            'revocation_reason' => $revocationReason,
+        ]);
+
+        $campaign->events()->create([
+            'type' => CampaignEvent::TYPE_REVOKED,
+            'comment' => $revocationReason,
+            'admin_id' => $admin->id,
+        ]);
+
+        $this->notifications->sendRevoked($campaign);
     }
 
     private function logActivity(Admin $admin, string $action, Campaign $campaign, array $changes): void

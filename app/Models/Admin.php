@@ -2,14 +2,17 @@
 
 namespace App\Models;
 
+use App\Support\ModuleAccess;
 use Filament\Models\Contracts\FilamentUser;
+use Filament\Models\Contracts\HasAvatar;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-class Admin extends Authenticatable implements FilamentUser
+class Admin extends Authenticatable implements FilamentUser, HasAvatar
 {
     use HasFactory, Notifiable;
 
@@ -17,8 +20,10 @@ class Admin extends Authenticatable implements FilamentUser
         'name',
         'email',
         'password',
-        'role',
+        'role_id',
         'avatar',
+        'contact',
+        'about_me',
         'is_active',
     ];
 
@@ -35,9 +40,33 @@ class Admin extends Authenticatable implements FilamentUser
         ];
     }
 
+    public function role(): BelongsTo
+    {
+        return $this->belongsTo(Role::class);
+    }
+
+    public function canAccessModule(string $module): bool
+    {
+        return ModuleAccess::can($this, $module);
+    }
+
+    public function isSuperAdmin(): bool
+    {
+        return ModuleAccess::isSuperAdmin($this);
+    }
+
     public function canAccessPanel(Panel $panel): bool
     {
-        return $this->is_active;
+        return $panel->getId() === 'admin' && $this->is_active;
+    }
+
+    public function getFilamentAvatarUrl(): ?string
+    {
+        if (! $this->avatar) {
+            return null;
+        }
+
+        return asset('storage/'.$this->avatar);
     }
 
     public function activityLogs(): HasMany

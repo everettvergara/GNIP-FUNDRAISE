@@ -30,6 +30,8 @@ class UpdateCampaignRequest extends FormRequest
             'thank_you_message' => ['nullable', 'string'],
             'starts_at' => ['nullable', 'date'],
             'ends_at' => ['nullable', 'date', 'after_or_equal:starts_at'],
+            'submit_for_approval' => ['nullable', 'boolean'],
+            'submission_comment' => ['nullable', 'string', 'max:2000'],
         ];
     }
 }

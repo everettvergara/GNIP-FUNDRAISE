@@ -12,6 +12,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
+            RoleSeeder::class,
             AdminSeeder::class,
             CampaignDocumentTypeSeeder::class,
             CampaignCategorySeeder::class,
@@ -19,6 +20,7 @@ class DatabaseSeeder extends Seeder
             CmsPageSeeder::class,
             PartnerSeeder::class,
             EmailTemplateSeeder::class,
+            SiteSettingSeeder::class,
             CampaignSeeder::class,
         ]);
     }

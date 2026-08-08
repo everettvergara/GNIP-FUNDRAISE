@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\ReferenceDataCache;
 use Illuminate\Database\Eloquent\Model;
 
 class Sector extends Model
@@ -24,5 +25,11 @@ class Sector extends Model
         return [
             'sort_order' => 'integer',
         ];
+    }
+
+    protected static function booted(): void
+    {
+        static::saved(fn () => ReferenceDataCache::forgetSectors());
+        static::deleted(fn () => ReferenceDataCache::forgetSectors());
     }
 }

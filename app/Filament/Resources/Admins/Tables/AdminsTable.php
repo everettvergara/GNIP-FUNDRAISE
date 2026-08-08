@@ -20,7 +20,8 @@ class AdminsTable
                 TextColumn::make('email')
                     ->label('Email address')
                     ->searchable(),
-                TextColumn::make('role')
+                TextColumn::make('role.name')
+                    ->label('Role')
                     ->searchable(),
                 TextColumn::make('avatar')
                     ->searchable(),

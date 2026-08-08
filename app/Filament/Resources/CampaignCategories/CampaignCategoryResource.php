@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\CampaignCategories;
 
+use App\Filament\Concerns\AuthorizesAdminModule;
 use App\Filament\Resources\CampaignCategories\Pages\CreateCampaignCategory;
 use App\Filament\Resources\CampaignCategories\Pages\EditCampaignCategory;
 use App\Filament\Resources\CampaignCategories\Pages\ListCampaignCategories;
@@ -16,11 +17,18 @@ use Filament\Tables\Table;
 
 class CampaignCategoryResource extends Resource
 {
+    use AuthorizesAdminModule;
+
     protected static ?string $model = CampaignCategory::class;
 
     protected static string|\UnitEnum|null $navigationGroup = 'Campaign Management';
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+
+    protected static function moduleKey(): string
+    {
+        return 'campaign_categories';
+    }
 
     public static function form(Schema $schema): Schema
     {

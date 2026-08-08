@@ -1,10 +1,24 @@
 import Alpine from 'alpinejs';
+import '@hotwired/turbo';
 import { initRecaptchaForms } from './recaptcha';
 import { initImageUploadZones } from './image-upload';
 
 window.Alpine = Alpine;
 
-Alpine.start();
-initRecaptchaForms();
+const bootPageScripts = () => {
+    initRecaptchaForms();
+    initImageUploadZones();
+};
 
-document.addEventListener('DOMContentLoaded', initImageUploadZones);
+document.addEventListener('turbo:load', () => {
+    Alpine.start();
+    bootPageScripts();
+});
+
+document.addEventListener('turbo:before-cache', () => {
+    document.querySelectorAll('[x-data]').forEach((element) => {
+        if (element._x_dataStack) {
+            Alpine.destroyTree(element);
+        }
+    });
+});

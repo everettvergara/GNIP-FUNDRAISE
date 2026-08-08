@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreCampaignImpactReportRequest;
 use App\Models\Campaign;
+use App\Models\CampaignEvent;
 use App\Models\CampaignImpactReport;
 use Illuminate\Http\RedirectResponse;
 
@@ -32,6 +33,13 @@ class CampaignImpactReportController extends Controller
                 'sort_order' => $sortOrder,
             ]);
         }
+
+        $campaign->events()->create([
+            'type' => CampaignEvent::TYPE_IMPACT_REPORT,
+            'comment' => $report->message,
+            'user_id' => $request->user()->id,
+            'metadata' => ['impact_report_id' => $report->id],
+        ]);
 
         return redirect()
             ->route('campaigns.show', $campaign->slug)

@@ -10,11 +10,11 @@
 
     <section class="relative w-full bg-gn-text/5">
         <a href="{{ route('campaigns.index') }}" class="block w-full" aria-label="{{ $hero['cta_primary'] ?? 'Browse campaigns' }}">
-            <img
-                src="{{ asset('images/design/hero-banner.png') }}"
-                alt="{{ $heroAlt }}"
+            <x-optimized-image
+                src="images/design/hero-banner.png"
+                :alt="$heroAlt"
                 class="block w-full h-auto"
-            >
+            />
         </a>
     </section>
 
@@ -29,7 +29,7 @@
                         <div class="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition">
                             <a href="{{ route('campaigns.show', $campaign->slug) }}" class="group block">
                                 @if ($campaign->cover_image)
-                                    <img src="{{ asset('storage/'.$campaign->cover_image) }}" alt="{{ $campaign->title }}" class="w-full h-48 object-cover">
+                                    <img src="{{ asset('storage/'.$campaign->cover_image) }}" alt="{{ $campaign->title }}" class="w-full h-48 object-cover" loading="lazy" decoding="async">
                                 @else
                                     <div class="w-full h-48 bg-gn-accent/20 flex items-center justify-center text-gn-accent font-semibold">Campaign</div>
                                 @endif
@@ -82,11 +82,12 @@
                                         class="flex gap-4 group hover:opacity-90 transition"
                                     >
                                         @if ($sector->image)
-                                            <img
-                                                src="{{ asset($sector->image) }}"
-                                                alt="{{ $sector->name }}"
+                                            <x-optimized-image
+                                                :src="ltrim($sector->image, '/')"
+                                                :alt="$sector->name"
                                                 class="w-[218px] max-w-[40%] aspect-square object-cover flex-shrink-0"
-                                            >
+                                                :lazy="true"
+                                            />
                                         @else
                                             <div class="w-[218px] max-w-[40%] aspect-square bg-gn-accent/20 flex-shrink-0"></div>
                                         @endif

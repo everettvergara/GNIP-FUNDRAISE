@@ -31,8 +31,12 @@
     </div>
 
     <div class="flex gap-4 mb-8">
-        <a href="{{ route('campaigns.create') }}" class="px-4 py-2 bg-gn-orange text-white font-semibold rounded-md hover:opacity-90">Create Campaign</a>
-        <a href="{{ route('my-campaigns.index') }}" class="px-4 py-2 border border-gn-accent text-gn-accent font-semibold rounded-md hover:bg-gn-accent hover:text-white transition">My Campaigns</a>
+        @if (auth()->user()?->canAccessModule('campaigns_create'))
+            <a href="{{ route('campaigns.create') }}" class="px-4 py-2 bg-gn-orange text-white font-semibold rounded-md hover:opacity-90">Create Campaign</a>
+        @endif
+        @if (auth()->user()?->canAccessModule('my_campaigns'))
+            <a href="{{ route('my-campaigns.index') }}" class="px-4 py-2 border border-gn-accent text-gn-accent font-semibold rounded-md hover:bg-gn-accent hover:text-white transition">My Campaigns</a>
+        @endif
     </div>
 
     @if ($stats['recent_donations']->isNotEmpty())
